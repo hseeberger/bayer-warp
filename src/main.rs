@@ -12,10 +12,10 @@ use warp::{path, Filter};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = env::var("HTTP_ADDRESS")
-        .unwrap_or("::1".to_string())
+        .unwrap_or_else(|_| "::1".to_string())
         .parse::<IpAddr>()?;
     let port = env::var("HTTP_PORT")
-        .unwrap_or("8080".to_string())
+        .unwrap_or_else(|_| "8080".to_string())
         .parse::<u16>()?;
 
     let beer_repository = Arc::new(Mutex::new(HashSet::new()));
