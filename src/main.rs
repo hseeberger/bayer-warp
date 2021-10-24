@@ -1,22 +1,24 @@
+use anyhow::{anyhow, Result};
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::env;
 use std::net::IpAddr;
 use std::sync::Arc;
-
-use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 use warp::filters::{body, method};
 use warp::http::StatusCode;
 use warp::{path, Filter};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = env::var("HTTP_ADDRESS")
-        .unwrap_or_else(|_| "::1".to_string())
-        .parse::<IpAddr>()?;
-    let port = env::var("HTTP_PORT")
-        .unwrap_or_else(|_| "8080".to_string())
-        .parse::<u16>()?;
+async fn main() -> Result<()> {
+    let addr = env::var("HTTP_ADDRESS").unwrap_or_else(|_| "::1".to_string());
+    let addr = addr
+        .parse::<IpAddr>()
+        .map_err(|e| anyhow!("Error parsing HTTP address {} as IpAddr: {}", addr, e))?;
+    let port = env::var("HTTP_PORT").unwrap_or_else(|_| "8080".to_string());
+    let port = port
+        .parse::<u16>()
+        .map_err(|e| anyhow!("Error parsing HTTP port {} as u16: {}", port, e))?;
 
     let beer_repository = Arc::new(Mutex::new(HashSet::new()));
     let beer_repository = warp::any().map(move || Arc::clone(&beer_repository));
