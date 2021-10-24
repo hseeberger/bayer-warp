@@ -10,7 +10,15 @@ use warp::http::StatusCode;
 use warp::{path, Filter};
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
+    tracing_subscriber::fmt::init();
+    tracing::info!("bayer-warp started");
+    if let Err(e) = run().await {
+        tracing::error!("{}", e);
+    };
+}
+
+async fn run() -> Result<()> {
     let addr = env::var("HTTP_ADDRESS").unwrap_or_else(|_| "::1".to_string());
     let addr = addr
         .parse::<IpAddr>()
